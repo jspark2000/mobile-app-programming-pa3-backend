@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  app:
+    profiles: ['devcontainer']
+    container_name: skkulol-dev
+    image: mcr.microsoft.com/vscode/devcontainers/typescript-node:20-bullseye
+    volumes:
+      - ..:/workspace:cached
+    depends_on:
+      - dynamodb
+      - minio
+    stdin_open: true
+    tty: true
+    env_file: ../.env.development
+    environment:
+      DEVCONTAINER: 1
+    network_mode: host
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb_local
+    ports:
+      - '8000:8000'
+    volumes:
+      - dynamodb_data:/home/dynamodblocal
+
+  minio:
+    image: minio/minio
+    container_name: minio_local
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: skkulol
+      MINIO_ROOT_PASSWORD: skkulol1234
+    command: server /data --console-address ":9001"
+
+volumes:
+  dynamodb_data:
+  minio_data:

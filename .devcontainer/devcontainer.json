@@ -1,0 +1,20 @@
+{
+  "name": "skkulol",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "app",
+  "runServices": ["app", "dynamodb", "minio"],
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "scripts/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "features": {},
+  "remoteUser": "node"
+}
