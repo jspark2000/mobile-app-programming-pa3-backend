@@ -5,6 +5,8 @@ import { UserModule } from './user/user.module'
 import { GameModule } from './game/game.module'
 import { AuthModule } from './auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
+import { DynamoDBModule } from './dynamodb/dynamodb.module'
+import { StorageModule } from './storage/storage.module'
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { ConfigModule } from '@nestjs/config'
     }),
     UserModule,
     GameModule,
-    AuthModule
+    AuthModule,
+    DynamoDBModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [AppService]

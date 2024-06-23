@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as admin from 'firebase-admin'
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 
 @Injectable()
 export class AuthService {
@@ -13,14 +14,14 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const serviceAccount = require(serviceAccountPath)
 
-    admin.initializeApp({
+    this.defaultApp = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     })
   }
 
-  async verifyToken(token: string) {
+  async verifyToken(token: string): Promise<DecodedIdToken> {
     try {
-      return await this.defaultApp.auth().verifyIdToken(token)
+      return await admin.auth().verifyIdToken(token)
     } catch (error) {
       throw new Error('Invalid token')
     }

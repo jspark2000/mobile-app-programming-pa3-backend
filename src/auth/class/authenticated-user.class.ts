@@ -3,11 +3,11 @@ export class AuthenticatedUser {
   #email: string
 
   get id() {
-    return this.id
+    return this.#id
   }
 
   get email() {
-    return this.email
+    return this.#email
   }
 
   constructor(id: string, email: string) {

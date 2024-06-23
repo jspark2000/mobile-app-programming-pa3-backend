@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import {
+  DynamoDBClient,
+  ScanCommand,
+  UpdateItemCommand
+} from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
   PutCommand,
@@ -41,18 +45,19 @@ export class DynamoDBService {
         })
       )
     } catch (error) {
-      console.error('Error inserting item:', error)
+      throw new InternalServerErrorException(error)
     }
   }
 
-  async getItem<T>(id: number, tableName: string): Promise<T> {
+  async getItem<T>(id: string, tableName: string): Promise<T> {
     try {
       const result = await this.dynamoDB.send(
         new GetCommand({
           TableName: tableName,
-          Key: { Id: id }
+          Key: { id }
         })
       )
+
       return result.Item as T
     } catch (error) {
       console.error('Error fetching item:', error)
@@ -75,6 +80,47 @@ export class DynamoDBService {
       return result.Items as T[]
     } catch (error) {
       console.error('Error querying items:', error)
+    }
+  }
+
+  async scanItems<T>(
+    tableName: string,
+    filterExpression: string,
+    expressionAttributeValues: { [key: string]: any }
+  ): Promise<T[]> {
+    try {
+      const result = await this.dynamoDB.send(
+        new ScanCommand({
+          TableName: tableName,
+          FilterExpression: filterExpression,
+          ExpressionAttributeValues: expressionAttributeValues
+        })
+      )
+
+      return result.Items as T[]
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
+  }
+
+  async updateItem(
+    tableName: string,
+    key: { [key: string]: any },
+    updateExpression: string,
+    expressionAttributeValues: { [key: string]: any }
+  ): Promise<void> {
+    try {
+      await this.dynamoDB.send(
+        new UpdateItemCommand({
+          TableName: tableName,
+          Key: key,
+          UpdateExpression: updateExpression,
+          ExpressionAttributeValues: expressionAttributeValues,
+          ReturnValues: 'UPDATED_NEW'
+        })
+      )
+    } catch (error) {
+      throw new InternalServerErrorException(error)
     }
   }
 }
